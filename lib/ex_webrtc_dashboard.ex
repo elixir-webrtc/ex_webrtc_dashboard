@@ -1,6 +1,6 @@
 defmodule ExWebRTCDashboard do
   @moduledoc """
-  Documentation for `ExWebrtcDashboard`.
+  ExWebRTC statistics visualization for the Phoenix LiveDashboard.
   """
   use Phoenix.LiveDashboard.PageBuilder
 
