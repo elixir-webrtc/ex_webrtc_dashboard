@@ -2,6 +2,10 @@
 
 [ExWebRTC](https://github.com/elixir-webrtc/ex_webrtc) statistics visualization for the [Phoenix LiveDashboard](https://github.com/phoenixframework/phoenix_live_dashboard).
 
+<p align="center">
+  <img src="dashboard.gif" alt="animated" />
+</p>
+
 ## Installation
 
 1. Enable `LiveDashboard` by following these [instructions](https://github.com/phoenixframework/phoenix_live_dashboard?tab=readme-ov-file#installation).
