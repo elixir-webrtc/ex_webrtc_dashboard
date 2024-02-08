@@ -1,9 +1,12 @@
 # ExWebRTCDashboard
 
+[![Hex.pm](https://img.shields.io/hexpm/v/ex_webrtc_dashboard.svg)](https://hex.pm/packages/ex_webrtc_dashboard)
+[![API Docs](https://img.shields.io/badge/api-docs-yellow.svg?style=flat)](https://hexdocs.pm/ex_webrtc_dashboard)
+
 [ExWebRTC](https://github.com/elixir-webrtc/ex_webrtc) statistics visualization for the [Phoenix LiveDashboard](https://github.com/phoenixframework/phoenix_live_dashboard).
 
 <p align="center">
-  <img src="dashboard.gif" alt="animated" />
+  <img src="https://raw.githubusercontent.com/elixir-webrtc/ex_webrtc_dashboard/1958992207fb6badffe386c8eb4ecad288acf981/dashboard.gif" alt="ExWebRTC Dashboard" />
 </p>
 
 ## Installation
