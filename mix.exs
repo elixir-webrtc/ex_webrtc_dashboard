@@ -42,7 +42,7 @@ defmodule ExWebrtcDashboard.MixProject do
   defp deps do
     [
       {:phoenix_live_dashboard, "~> 0.8.3"},
-      {:ex_webrtc, github: "elixir-webrtc/ex_webrtc", branch: "get-stats"},
+      {:ex_webrtc, "~> 0.1.0"},
       {:ex_doc, "~> 0.31.0", only: :dev, runtime: false}
     ]
   end
