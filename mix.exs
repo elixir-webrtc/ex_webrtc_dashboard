@@ -1,13 +1,13 @@
-defmodule ExWebrtcDashboard.MixProject do
+defmodule ExWebRTCDashboard.MixProject do
   use Mix.Project
 
-  @version "0.1.0"
+  @version "0.1.1"
   @source_url "https://github.com/elixir-webrtc/ex_webrtc_dashboard"
 
   def project do
     [
       app: :ex_webrtc_dashboard,
-      version: "0.1.0",
+      version: @version,
       elixir: "~> 1.15",
       start_permanent: Mix.env() == :prod,
       description: "ExWebRTC statistics visualization for the Phoenix LiveDashboard",
