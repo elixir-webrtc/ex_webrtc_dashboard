@@ -338,6 +338,13 @@ defmodule ExWebRTCDashboard do
         <:row :let={inbound_rtp} label="kind">
           <%= inbound_rtp.kind %>
         </:row>
+        <:row :let={inbound_rtp} label="rid">
+          <%= if inbound_rtp.rid != nil do %>
+            <%= inbound_rtp.rid %>
+          <% else %>
+            -
+          <% end %>
+        </:row>
         <:row :let={inbound_rtp} label="mid">
           <%= inbound_rtp.mid %>
         </:row>
