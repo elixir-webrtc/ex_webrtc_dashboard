@@ -19,7 +19,7 @@ In most cases you can skip this step as `Phoenix` comes with `LiveDashboard` ena
 ```elixir
 def deps do
   [
-    {:ex_webrtc_dashboard, "~> 0.2.0"}
+    {:ex_webrtc_dashboard, "~> 0.3.0"}
   ]
 end
 ```

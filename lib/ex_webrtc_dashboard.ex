@@ -35,7 +35,7 @@ defmodule ExWebRTCDashboard do
 
       nav == nil ->
         to = live_dashboard_path(socket, socket.assigns.page, nav: List.first(Map.keys(pc_pids)))
-        {:ok, push_redirect(socket, to: to)}
+        {:ok, push_navigate(socket, to: to)}
 
       nav != nil and pc_pids == %{} ->
         # don't do anything, render will inform that we are waiting for peer connections
@@ -60,7 +60,7 @@ defmodule ExWebRTCDashboard do
             # redirect to any other pc
             nav = List.first(Map.keys(pc_pids))
             to = live_dashboard_path(socket, socket.assigns.page, nav: nav)
-            {:ok, push_redirect(socket, to: to)}
+            {:ok, push_navigate(socket, to: to)}
         end
     end
   end
@@ -100,7 +100,7 @@ defmodule ExWebRTCDashboard do
       socket.assigns.current_pc_str == nil and pc_pids != %{} ->
         nav = List.first(Map.keys(socket.assigns.pc_pids))
         to = live_dashboard_path(socket, socket.assigns.page, nav: nav)
-        {:noreply, push_redirect(socket, to: to)}
+        {:noreply, push_navigate(socket, to: to)}
 
       socket.assigns.current_pc_str == nil ->
         {:noreply, socket}
