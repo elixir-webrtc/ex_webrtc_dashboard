@@ -108,10 +108,15 @@ defmodule ExWebRTCDashboard do
       true ->
         pc = socket.assigns.current_pc
         pc_str = socket.assigns.current_pc_str
-        {^pc, old_stats} = Map.fetch!(socket.assigns.pc_pids, pc_str)
 
         case fetch_stats(pc) do
           {:ok, stats} ->
+            old_stats =
+              case Map.get(socket.assigns.pc_pids, pc_str) do
+                {^pc, old_stats} -> old_stats
+                nil -> nil
+              end
+
             update_plots(stats, old_stats)
             pc_pids = put_in(socket.assigns.pc_pids, [pc_str], {pc, stats})
             socket = assign(socket, pc_pids: pc_pids)
@@ -229,85 +234,6 @@ defmodule ExWebRTCDashboard do
     """
   end
 
-  defp transport(assigns) do
-    ~H"""
-    <div class="mt-4">
-      <h4>Transport</h4>
-      <.row_table title="Transport" object={@transport}>
-        <:row :let={transport} label="Bytes sent">
-          <%= transport.bytes_sent %>
-        </:row>
-        <:row :let={transport} label="Bytes received">
-          <%= transport.bytes_received %>
-        </:row>
-        <:row :let={transport} label="Packets sent">
-          <%= transport.packets_sent %>
-        </:row>
-        <:row :let={transport} label="Packets received">
-          <%= transport.packets_received %>
-        </:row>
-        <:row :let={transport} label="ICE role">
-          <%= transport.ice_role %>
-        </:row>
-        <:row :let={transport} label="ICE local ufrag">
-          <%= transport.ice_local_ufrag %>
-        </:row>
-      </.row_table>
-
-      <div class="mt-4 row">
-        <.live_chart
-          id="transport-bytes_sent"
-          title="Bytes sent"
-          kind={:last_value}
-          prune_threshold={60}
-        />
-        <.live_chart
-          id="transport-bytes_sent_sec"
-          title="Bytes sent/s"
-          kind={:last_value}
-          prune_threshold={60}
-        />
-        <.live_chart
-          id="transport-bytes_received"
-          title="Bytes received"
-          kind={:last_value}
-          prune_threshold={60}
-        />
-        <.live_chart
-          id="transport-bytes_received_sec"
-          title="Bytes received/s"
-          kind={:last_value}
-          prune_threshold={60}
-        />
-        <.live_chart
-          id="transport-packets_sent"
-          title="Packets sent"
-          kind={:last_value}
-          prune_threshold={60}
-        />
-        <.live_chart
-          id="transport-packets_sent_sec"
-          title="Packets sent/s"
-          kind={:last_value}
-          prune_threshold={60}
-        />
-        <.live_chart
-          id="transport-packets_received"
-          title="Packets received"
-          kind={:last_value}
-          prune_threshold={60}
-        />
-        <.live_chart
-          id="transport-packets_received_sec"
-          title="Packets received/s"
-          kind={:last_value}
-          prune_threshold={60}
-        />
-      </div>
-    </div>
-    """
-  end
-
   defp candidates(assigns) do
     ~H"""
     <div class="mt-4">
@@ -354,6 +280,40 @@ defmodule ExWebRTCDashboard do
     """
   end
 
+  defp transport(assigns) do
+    ~H"""
+    <div class="mt-4">
+      <h4>Transport</h4>
+      <.row_table title="Transport" object={@transport}>
+        <:row :let={transport} label="Bytes sent">
+          <%= transport.bytes_sent %>
+        </:row>
+        <:row :let={transport} label="Bytes received">
+          <%= transport.bytes_received %>
+        </:row>
+        <:row :let={transport} label="Packets sent">
+          <%= transport.packets_sent %>
+        </:row>
+        <:row :let={transport} label="Packets received">
+          <%= transport.packets_received %>
+        </:row>
+        <:row :let={transport} label="ICE role">
+          <%= transport.ice_role %>
+        </:row>
+        <:row :let={transport} label="ICE local ufrag">
+          <%= transport.ice_local_ufrag %>
+        </:row>
+      </.row_table>
+
+      <div class="mt-4 row">
+        <%= for {id, name} <- transport_stats() do %>
+          <.live_chart id={"transport-#{id}"} title={name} kind={:last_value} prune_threshold={60} />
+        <% end %>
+      </div>
+    </div>
+    """
+  end
+
   defp inbound_rtp(assigns) do
     ~H"""
     <div class="mt-4">
@@ -385,63 +345,23 @@ defmodule ExWebRTCDashboard do
         <:row :let={inbound_rtp} label="Markers received">
           <%= inbound_rtp.markers_received %>
         </:row>
-        <:row :let={inbound_rtp} label="NACK sent">
+        <:row :let={inbound_rtp} label="NACKs sent">
           <%= inbound_rtp.nack_count %>
         </:row>
-        <:row :let={inbound_rtp} label="PLI sent">
+        <:row :let={inbound_rtp} label="PLIs sent">
           <%= inbound_rtp.pli_count %>
         </:row>
       </.row_table>
 
       <div class="mt-4 row">
-        <.live_chart
-          id={"inbound_rtp-bytes_received-#{@inbound_rtp.id}"}
-          title="Bytes received"
-          kind={:last_value}
-          prune_threshold={60}
-        />
-        <.live_chart
-          id={"inbound_rtp-bytes_received_sec-#{@inbound_rtp.id}"}
-          title="Bytes received/s"
-          kind={:last_value}
-          prune_threshold={60}
-        />
-        <.live_chart
-          id={"inbound_rtp-packets_received-#{@inbound_rtp.id}"}
-          title="Packets received"
-          kind={:last_value}
-          prune_threshold={60}
-        />
-        <.live_chart
-          id={"inbound_rtp-packets_received_sec-#{@inbound_rtp.id}"}
-          title="Packets received/s"
-          kind={:last_value}
-          prune_threshold={60}
-        />
-        <.live_chart
-          id={"inbound_rtp-markers_received-#{@inbound_rtp.id}"}
-          title="Markers received"
-          kind={:last_value}
-          prune_threshold={60}
-        />
-        <.live_chart
-          id={"inbound_rtp-markers_received_sec-#{@inbound_rtp.id}"}
-          title="Markers received/s"
-          kind={:last_value}
-          prune_threshold={60}
-        />
-        <.live_chart
-          id={"inbound_rtp-nack_count-#{@inbound_rtp.id}"}
-          title="NACK sent"
-          kind={:last_value}
-          prune_threshold={60}
-        />
-        <.live_chart
-          id={"inbound_rtp-pli_count-#{@inbound_rtp.id}"}
-          title="PLI sent"
-          kind={:last_value}
-          prune_threshold={60}
-        />
+        <%= for {id, name} <- inbound_rtp_stats() do %>
+          <.live_chart
+            id={"inbound_rtp-#{id}-#{@inbound_rtp.id}"}
+            title={name}
+            kind={:last_value}
+            prune_threshold={60}
+          />
+        <% end %>
       </div>
     </div>
     """
@@ -477,87 +397,23 @@ defmodule ExWebRTCDashboard do
         <:row :let={outbound_rtp} label="Markers sent">
           <%= outbound_rtp.markers_sent %>
         </:row>
-        <:row :let={outbound_rtp} label="NACK received">
+        <:row :let={outbound_rtp} label="NACKs received">
           <%= outbound_rtp.nack_count %>
         </:row>
-        <:row :let={outbound_rtp} label="PLI received">
+        <:row :let={outbound_rtp} label="PLIs received">
           <%= outbound_rtp.pli_count %>
         </:row>
       </.row_table>
 
       <div class="mt-4 row">
-        <.live_chart
-          id={"outbound_rtp-bytes_sent-#{@outbound_rtp.id}"}
-          title="Bytes sent"
-          kind={:last_value}
-          prune_threshold={60}
-        />
-        <.live_chart
-          id={"outbound_rtp-bytes_sent_sec-#{@outbound_rtp.id}"}
-          title="Bytes sent/s"
-          kind={:last_value}
-          prune_threshold={60}
-        />
-        <.live_chart
-          id={"outbound_rtp-packets_sent-#{@outbound_rtp.id}"}
-          title="Packets sent"
-          kind={:last_value}
-          prune_threshold={60}
-        />
-        <.live_chart
-          id={"outbound_rtp-packets_sent_sec-#{@outbound_rtp.id}"}
-          title="Packets sent/s"
-          kind={:last_value}
-          prune_threshold={60}
-        />
-        <.live_chart
-          id={"outbound_rtp-retransmitted_bytes_sent-#{@outbound_rtp.id}"}
-          title="Retransmitted bytes sent"
-          kind={:last_value}
-          prune_threshold={60}
-        />
-        <.live_chart
-          id={"outbound_rtp-retransmitted_bytes_sent_sec-#{@outbound_rtp.id}"}
-          title="Retransmitted bytes sent/s"
-          kind={:last_value}
-          prune_threshold={60}
-        />
-        <.live_chart
-          id={"outbound_rtp-retransmitted_packets_sent-#{@outbound_rtp.id}"}
-          title="Retransmitted packets sent"
-          kind={:last_value}
-          prune_threshold={60}
-        />
-        <.live_chart
-          id={"outbound_rtp-retransmitted_packets_sent_sec-#{@outbound_rtp.id}"}
-          title="Retransmitted packets sent/s"
-          kind={:last_value}
-          prune_threshold={60}
-        />
-        <.live_chart
-          id={"outbound_rtp-markers_sent-#{@outbound_rtp.id}"}
-          title="Markser sent"
-          kind={:last_value}
-          prune_threshold={60}
-        />
-        <.live_chart
-          id={"outbound_rtp-markers_sent_sec-#{@outbound_rtp.id}"}
-          title="Markser sent/s"
-          kind={:last_value}
-          prune_threshold={60}
-        />
-        <.live_chart
-          id={"outbound_rtp-nack_count-#{@outbound_rtp.id}"}
-          title="NACK received"
-          kind={:last_value}
-          prune_threshold={60}
-        />
-        <.live_chart
-          id={"outbound_rtp-pli_count-#{@outbound_rtp.id}"}
-          title="PLI received"
-          kind={:last_value}
-          prune_threshold={60}
-        />
+        <%= for {id, name} <- outbound_rtp_stats() do %>
+          <.live_chart
+            id={"outbound_rtp-#{id}-#{@outbound_rtp.id}"}
+            title={name}
+            kind={:last_value}
+            prune_threshold={60}
+          />
+        <% end %>
       </div>
     </div>
     """
@@ -594,131 +450,65 @@ defmodule ExWebRTCDashboard do
   end
 
   defp update_plots(stats, old_stats) do
-    send_data_to_chart("transport-bytes_sent", [
-      {nil, stats.transport.bytes_sent, System.system_time(:microsecond)}
-    ])
+    timestamp = System.system_time(:microsecond)
 
-    send_data_to_chart("transport-bytes_sent_sec", [
-      {nil, per_sec_stat(stats.transport, old_stats.transport, :bytes_sent),
-       System.system_time(:microsecond)}
-    ])
-
-    send_data_to_chart("transport-bytes_received", [
-      {nil, stats.transport.bytes_received, System.system_time(:microsecond)}
-    ])
-
-    send_data_to_chart("transport-bytes_received_sec", [
-      {nil, per_sec_stat(stats.transport, old_stats.transport, :bytes_received),
-       System.system_time(:microsecond)}
-    ])
-
-    send_data_to_chart("transport-packets_sent", [
-      {nil, stats.transport.packets_sent, System.system_time(:microsecond)}
-    ])
-
-    send_data_to_chart("transport-packets_sent_sec", [
-      {nil, per_sec_stat(stats.transport, old_stats.transport, :packets_sent),
-       System.system_time(:microsecond)}
-    ])
-
-    send_data_to_chart("transport-packets_received", [
-      {nil, stats.transport.packets_received, System.system_time(:microsecond)}
-    ])
-
-    send_data_to_chart("transport-packets_received_sec", [
-      {nil, per_sec_stat(stats.transport, old_stats.transport, :packets_received),
-       System.system_time(:microsecond)}
-    ])
+    [
+      {"bytes_sent", stats.transport.bytes_sent},
+      {"bytes_sent_sec", per_sec_stat(stats.transport, old_stats.transport, :bytes_sent)},
+      {"bytes_received", stats.transport.bytes_received},
+      {"bytes_received_sec", per_sec_stat(stats.transport, old_stats.transport, :bytes_received)},
+      {"packets_sent", stats.transport.packets_sent},
+      {"packets_sent_sec", per_sec_stat(stats.transport, old_stats.transport, :packets_sent)},
+      {"packets_received", stats.transport.packets_received},
+      {"packets_received_sec",
+       per_sec_stat(stats.transport, old_stats.transport, :packets_received)}
+    ]
+    |> Enum.each(fn {id, data} ->
+      send_data_to_chart("transport-#{id}", [{nil, data, timestamp}])
+    end)
 
     for inbound_rtp <- stats.inbound_rtp do
       old_inbound_rtp = Enum.find(old_stats.inbound_rtp, &(&1.id == inbound_rtp.id))
       timestamp = to_micro(inbound_rtp.timestamp)
 
-      send_data_to_chart("inbound_rtp-bytes_received-#{inbound_rtp.id}", [
-        {nil, inbound_rtp.bytes_received, timestamp}
-      ])
-
-      send_data_to_chart("inbound_rtp-bytes_received_sec-#{inbound_rtp.id}", [
-        {nil, per_sec_stat(inbound_rtp, old_inbound_rtp, :bytes_received), timestamp}
-      ])
-
-      send_data_to_chart("inbound_rtp-packets_received-#{inbound_rtp.id}", [
-        {nil, inbound_rtp.packets_received, timestamp}
-      ])
-
-      send_data_to_chart("inbound_rtp-packets_received_sec-#{inbound_rtp.id}", [
-        {nil, per_sec_stat(inbound_rtp, old_inbound_rtp, :packets_received), timestamp}
-      ])
-
-      send_data_to_chart("inbound_rtp-markers_received-#{inbound_rtp.id}", [
-        {nil, inbound_rtp.markers_received, timestamp}
-      ])
-
-      send_data_to_chart("inbound_rtp-markers_received_sec-#{inbound_rtp.id}", [
-        {nil, per_sec_stat(inbound_rtp, old_inbound_rtp, :markers_received), timestamp}
-      ])
-
-      send_data_to_chart("inbound_rtp-nack_count-#{inbound_rtp.id}", [
-        {nil, inbound_rtp.nack_count, timestamp}
-      ])
-
-      send_data_to_chart("inbound_rtp-pli_count-#{inbound_rtp.id}", [
-        {nil, inbound_rtp.pli_count, timestamp}
-      ])
+      [
+        {"bytes_received", inbound_rtp.bytes_received},
+        {"bytes_received_sec", per_sec_stat(inbound_rtp, old_inbound_rtp, :bytes_received)},
+        {"packets_received", inbound_rtp.packets_received},
+        {"packets_received_sec", per_sec_stat(inbound_rtp, old_inbound_rtp, :packets_received)},
+        {"markers_received", inbound_rtp.markers_received},
+        {"markers_received_sec", per_sec_stat(inbound_rtp, old_inbound_rtp, :markers_received)},
+        {"nack_count", inbound_rtp.nack_count},
+        {"pli_count", inbound_rtp.pli_count}
+      ]
+      |> Enum.each(fn {id, data} ->
+        send_data_to_chart("inbound_rtp-#{id}-#{inbound_rtp.id}", [{nil, data, timestamp}])
+      end)
     end
 
     for outbound_rtp <- stats.outbound_rtp do
       old_outbound_rtp = Enum.find(old_stats.outbound_rtp, &(&1.id == outbound_rtp.id))
       timestamp = to_micro(outbound_rtp.timestamp)
 
-      send_data_to_chart("outbound_rtp-bytes_sent-#{outbound_rtp.id}", [
-        {nil, outbound_rtp.bytes_sent, timestamp}
-      ])
-
-      send_data_to_chart("outbound_rtp-bytes_sent_sec-#{outbound_rtp.id}", [
-        {nil, per_sec_stat(outbound_rtp, old_outbound_rtp, :bytes_sent), timestamp}
-      ])
-
-      send_data_to_chart("outbound_rtp-packets_sent-#{outbound_rtp.id}", [
-        {nil, outbound_rtp.packets_sent, timestamp}
-      ])
-
-      send_data_to_chart("outbound_rtp-packets_sent_sec-#{outbound_rtp.id}", [
-        {nil, per_sec_stat(outbound_rtp, old_outbound_rtp, :packets_sent), timestamp}
-      ])
-
-      send_data_to_chart("outbound_rtp-retransmitted_bytes_sent-#{outbound_rtp.id}", [
-        {nil, outbound_rtp.retransmitted_bytes_sent, timestamp}
-      ])
-
-      send_data_to_chart("outbound_rtp-retransmitted_bytes_sent_sec-#{outbound_rtp.id}", [
-        {nil, per_sec_stat(outbound_rtp, old_outbound_rtp, :retransmitted_bytes_sent), timestamp}
-      ])
-
-      send_data_to_chart("outbound_rtp-retransmitted_packets_sent-#{outbound_rtp.id}", [
-        {nil, outbound_rtp.retransmitted_packets_sent, timestamp}
-      ])
-
-      send_data_to_chart("outbound_rtp-retransmitted_packets_sent_sec-#{outbound_rtp.id}", [
-        {nil, per_sec_stat(outbound_rtp, old_outbound_rtp, :retransmitted_packets_sent),
-         timestamp}
-      ])
-
-      send_data_to_chart("outbound_rtp-markers_sent-#{outbound_rtp.id}", [
-        {nil, outbound_rtp.markers_sent, timestamp}
-      ])
-
-      send_data_to_chart("outbound_rtp-markers_sent_sec-#{outbound_rtp.id}", [
-        {nil, per_sec_stat(outbound_rtp, old_outbound_rtp, :markers_sent), timestamp}
-      ])
-
-      send_data_to_chart("outbound_rtp-nack_count-#{outbound_rtp.id}", [
-        {nil, outbound_rtp.nack_count, timestamp}
-      ])
-
-      send_data_to_chart("outbound_rtp-pli_count-#{outbound_rtp.id}", [
-        {nil, outbound_rtp.pli_count, timestamp}
-      ])
+      [
+        {"bytes_sent", outbound_rtp.bytes_sent},
+        {"bytes_sent_sec", per_sec_stat(outbound_rtp, old_outbound_rtp, :bytes_sent)},
+        {"packets_sent", outbound_rtp.packets_sent},
+        {"packets_sent_sec", per_sec_stat(outbound_rtp, old_outbound_rtp, :packets_sent)},
+        {"retransmitted_bytes_sent", outbound_rtp.retransmitted_bytes_sent},
+        {"retransmitted_bytes_sent_sec",
+         per_sec_stat(outbound_rtp, old_outbound_rtp, :retransmitted_bytes_sent)},
+        {"retransmitted_packets_sent", outbound_rtp.retransmitted_packets_sent},
+        {"retransmitted_packets_sent_sec",
+         per_sec_stat(outbound_rtp, old_outbound_rtp, :retransmitted_packets_sent)},
+        {"markers_sent", outbound_rtp.markers_sent},
+        {"markers_sent_sec", per_sec_stat(outbound_rtp, old_outbound_rtp, :markers_sent)},
+        {"nack_count", outbound_rtp.nack_count},
+        {"pli_count", outbound_rtp.pli_count}
+      ]
+      |> Enum.each(fn {id, data} ->
+        send_data_to_chart("outbound_rtp-#{id}-#{outbound_rtp.id}", [{nil, data, timestamp}])
+      end)
     end
   end
 
@@ -771,5 +561,48 @@ defmodule ExWebRTCDashboard do
       </div>
     </div>
     """
+  end
+
+  defp transport_stats do
+    [
+      {"bytes_sent", "Bytes sent"},
+      {"bytes_sent_sec", "Bytes sent/s"},
+      {"bytes_received", "Bytes received"},
+      {"bytes_received_sec", "Bytes received/s"},
+      {"packets_sent", "Packets sent"},
+      {"packets_sent_sec", "Packets sent/s"},
+      {"packets_received", "Packets received"},
+      {"packets_received_sec", "Packets received/s"}
+    ]
+  end
+
+  defp inbound_rtp_stats do
+    [
+      {"bytes_received", "Bytes received"},
+      {"bytes_received_sec", "Bytes received/s"},
+      {"packets_received", "Packets received/s"},
+      {"packets_received_sec", "Packets received/s"},
+      {"markers_received", "Markers received"},
+      {"markers_received_sec", "Markers received/s"},
+      {"nack_count", "NACKs sent"},
+      {"pli_count", "PLIs sent"}
+    ]
+  end
+
+  defp outbound_rtp_stats do
+    [
+      {"bytes_sent", "Bytes sent"},
+      {"bytes_sent_sec", "Bytes sent/s"},
+      {"packets_sent", "Packets sent"},
+      {"packets_sent_sec", "Packets sent/s"},
+      {"retransmitted_bytes_sent", "Retransmitted bytes sent"},
+      {"retransmitted_bytes_sent_sec", "Retransmitted bytes sent/s"},
+      {"retransmitted_packets_sent", "Retransmitted packets sent"},
+      {"retransmitted_packets_sent_sec", "Retransmitted packets sent/s"},
+      {"markers_sent", "Markers sent"},
+      {"markers_sent_sec", "Markers sent/s"},
+      {"nack_count", "NACKs received"},
+      {"pli_count", "PLIs received"}
+    ]
   end
 end
