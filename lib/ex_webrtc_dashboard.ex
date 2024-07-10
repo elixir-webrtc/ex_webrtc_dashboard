@@ -95,19 +95,19 @@ defmodule ExWebRTCDashboard do
     Process.send_after(self(), :update_stats, 1_000)
     socket = update_pc_pids(socket)
     pc_pids = socket.assigns.pc_pids
+    pc_str = socket.assigns.current_pc_str
 
     cond do
-      socket.assigns.current_pc_str == nil and pc_pids != %{} ->
+      pc_pids != %{} and (pc_str == nil or not Map.has_key?(pc_pids, pc_str)) ->
         nav = List.first(Map.keys(socket.assigns.pc_pids))
         to = live_dashboard_path(socket, socket.assigns.page, nav: nav)
         {:noreply, push_navigate(socket, to: to)}
 
-      socket.assigns.current_pc_str == nil ->
+      pc_str == nil ->
         {:noreply, socket}
 
       true ->
         pc = socket.assigns.current_pc
-        pc_str = socket.assigns.current_pc_str
 
         case fetch_stats(pc) do
           {:ok, stats} ->
