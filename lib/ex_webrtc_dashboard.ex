@@ -111,12 +111,7 @@ defmodule ExWebRTCDashboard do
 
         case fetch_stats(pc) do
           {:ok, stats} ->
-            old_stats =
-              case Map.get(socket.assigns.pc_pids, pc_str) do
-                {^pc, old_stats} -> old_stats
-                nil -> nil
-              end
-
+            {^pc, old_stats} = Map.fetch!(pc_pids, pc_str)
             update_plots(stats, old_stats)
             pc_pids = put_in(socket.assigns.pc_pids, [pc_str], {pc, stats})
             socket = assign(socket, pc_pids: pc_pids)
