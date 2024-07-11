@@ -449,9 +449,11 @@ defmodule ExWebRTCDashboard do
 
     [
       {"bytes_sent", stats.transport.bytes_sent},
-      {"bytes_sent_sec", per_sec_stat(stats.transport, old_stats.transport, :bytes_sent)},
+      {"bytes_sent_bits_sec",
+       per_sec_stat(stats.transport, old_stats.transport, :bytes_sent) * 8},
       {"bytes_received", stats.transport.bytes_received},
-      {"bytes_received_sec", per_sec_stat(stats.transport, old_stats.transport, :bytes_received)},
+      {"bytes_received_bits_sec",
+       per_sec_stat(stats.transport, old_stats.transport, :bytes_received) * 8},
       {"packets_sent", stats.transport.packets_sent},
       {"packets_sent_sec", per_sec_stat(stats.transport, old_stats.transport, :packets_sent)},
       {"packets_received", stats.transport.packets_received},
@@ -468,9 +470,11 @@ defmodule ExWebRTCDashboard do
 
       [
         {"bytes_received", inbound_rtp.bytes_received},
-        {"bytes_received_sec", per_sec_stat(inbound_rtp, old_inbound_rtp, :bytes_received)},
+        {"bytes_received_bits_sec",
+         per_sec_stat(inbound_rtp, old_inbound_rtp, :bytes_received) * 8},
         {"packets_received", inbound_rtp.packets_received},
-        {"packets_received_sec", per_sec_stat(inbound_rtp, old_inbound_rtp, :packets_received)},
+        {"packets_received_bits_sec",
+         per_sec_stat(inbound_rtp, old_inbound_rtp, :packets_received) * 8},
         {"markers_received", inbound_rtp.markers_received},
         {"markers_received_sec", per_sec_stat(inbound_rtp, old_inbound_rtp, :markers_received)},
         {"nack_count", inbound_rtp.nack_count},
@@ -487,12 +491,12 @@ defmodule ExWebRTCDashboard do
 
       [
         {"bytes_sent", outbound_rtp.bytes_sent},
-        {"bytes_sent_sec", per_sec_stat(outbound_rtp, old_outbound_rtp, :bytes_sent)},
+        {"bytes_sent_bits_sec", per_sec_stat(outbound_rtp, old_outbound_rtp, :bytes_sent) * 8},
         {"packets_sent", outbound_rtp.packets_sent},
         {"packets_sent_sec", per_sec_stat(outbound_rtp, old_outbound_rtp, :packets_sent)},
         {"retransmitted_bytes_sent", outbound_rtp.retransmitted_bytes_sent},
-        {"retransmitted_bytes_sent_sec",
-         per_sec_stat(outbound_rtp, old_outbound_rtp, :retransmitted_bytes_sent)},
+        {"retransmitted_bytes_sent_bits_sec",
+         per_sec_stat(outbound_rtp, old_outbound_rtp, :retransmitted_bytes_sent) * 8},
         {"retransmitted_packets_sent", outbound_rtp.retransmitted_packets_sent},
         {"retransmitted_packets_sent_sec",
          per_sec_stat(outbound_rtp, old_outbound_rtp, :retransmitted_packets_sent)},
@@ -561,9 +565,9 @@ defmodule ExWebRTCDashboard do
   defp transport_stats do
     [
       {"bytes_sent", "Bytes sent"},
-      {"bytes_sent_sec", "Bytes sent/s"},
+      {"bytes_sent_bits_sec", "Bytes sent in bits/s"},
       {"bytes_received", "Bytes received"},
-      {"bytes_received_sec", "Bytes received/s"},
+      {"bytes_received_bits_sec", "Bytes received in bits/s"},
       {"packets_sent", "Packets sent"},
       {"packets_sent_sec", "Packets sent/s"},
       {"packets_received", "Packets received"},
@@ -574,7 +578,7 @@ defmodule ExWebRTCDashboard do
   defp inbound_rtp_stats do
     [
       {"bytes_received", "Bytes received"},
-      {"bytes_received_sec", "Bytes received/s"},
+      {"bytes_received_bits_sec", "Bytes received in bits/s"},
       {"packets_received", "Packets received/s"},
       {"packets_received_sec", "Packets received/s"},
       {"markers_received", "Markers received"},
@@ -587,11 +591,11 @@ defmodule ExWebRTCDashboard do
   defp outbound_rtp_stats do
     [
       {"bytes_sent", "Bytes sent"},
-      {"bytes_sent_sec", "Bytes sent/s"},
+      {"bytes_sent_bits_sec", "Bytes sent in bits/s"},
       {"packets_sent", "Packets sent"},
       {"packets_sent_sec", "Packets sent/s"},
       {"retransmitted_bytes_sent", "Retransmitted bytes sent"},
-      {"retransmitted_bytes_sent_sec", "Retransmitted bytes sent/s"},
+      {"retransmitted_bytes_sent_bits_sec", "Retransmitted bytes sent in bits/s"},
       {"retransmitted_packets_sent", "Retransmitted packets sent"},
       {"retransmitted_packets_sent_sec", "Retransmitted packets sent/s"},
       {"markers_sent", "Markers sent"},
