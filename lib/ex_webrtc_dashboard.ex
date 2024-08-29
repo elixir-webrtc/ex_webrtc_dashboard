@@ -84,6 +84,7 @@ defmodule ExWebRTCDashboard do
 
           <.inbound_rtp :for={inbound_rtp <- pc_stats.inbound_rtp} inbound_rtp={inbound_rtp} />
           <.outbound_rtp :for={outbound_rtp <- pc_stats.outbound_rtp} outbound_rtp={outbound_rtp} />
+          <.data_channel :for={data_channel <- pc_stats.data_channel} data_channel={data_channel} />
         </:item>
       </.live_nav_bar>
     <% end %>
@@ -414,6 +415,49 @@ defmodule ExWebRTCDashboard do
     """
   end
 
+  defp data_channel(assigns) do
+    ~H"""
+    <div class="mt-4">
+      <h4>Data Channel <%= @data_channel.id %></h4>
+
+      <.row_table title={"Data Channel #{@data_channel.id}"} object={@data_channel}>
+        <:row :let={data_channel} label="Label">
+          <%= data_channel.label %>
+        </:row>
+        <:row :let={data_channel} label="Protocol">
+          <%= data_channel.protocol %>
+        </:row>
+        <:row :let={data_channel} label="Data Channel Identifier">
+          <%= data_channel.data_channel_identifier %>
+        </:row>
+        <:row :let={data_channel} label="Messages sent">
+          <%= data_channel.messages_sent %>
+        </:row>
+        <:row :let={data_channel} label="Bytes sent">
+          <%= data_channel.bytes_sent %>
+        </:row>
+        <:row :let={data_channel} label="Messages received">
+          <%= data_channel.messages_received %>
+        </:row>
+        <:row :let={data_channel} label="Bytes received">
+          <%= data_channel.bytes_received %>
+        </:row>
+      </.row_table>
+
+      <div class="mt-4 row">
+        <%= for {id, name} <- data_channel_stats() do %>
+          <.live_chart
+            id={"data_channel-#{id}-#{@data_channel.id}"}
+            title={name}
+            kind={:last_value}
+            prune_threshold={60}
+          />
+        <% end %>
+      </div>
+    </div>
+    """
+  end
+
   defp fetch_stats(pc) do
     try do
       stats = PeerConnection.get_stats(pc)
@@ -434,7 +478,8 @@ defmodule ExWebRTCDashboard do
           remote_cands: Map.get(groups, :remote_candidate, []),
           transport: stats.transport,
           inbound_rtp: Map.get(groups, :inbound_rtp, []),
-          outbound_rtp: Map.get(groups, :outbound_rtp, [])
+          outbound_rtp: Map.get(groups, :outbound_rtp, []),
+          data_channel: Map.get(groups, :data_channel, [])
         }
 
       {:ok, stats}
@@ -506,6 +551,27 @@ defmodule ExWebRTCDashboard do
       ]
       |> Enum.each(fn {id, data} ->
         send_data_to_chart("outbound_rtp-#{id}-#{outbound_rtp.id}", [{nil, data, timestamp}])
+      end)
+    end
+
+    for data_channel <- stats.data_channel do
+      old_data_channel = Enum.find(old_stats.data_channel, &(&1.id == data_channel.id))
+      timestamp = to_micro(data_channel.timestamp)
+
+      [
+        {"messages_sent", data_channel.messages_sent},
+        {"messages_sent_sec", per_sec_stat(data_channel, old_data_channel, :messages_sent)},
+        {"messages_received", data_channel.messages_received},
+        {"messages_received_sec",
+         per_sec_stat(data_channel, old_data_channel, :messages_received)},
+        {"bytes_sent", data_channel.bytes_sent},
+        {"bytes_sent_bits_sec", per_sec_stat(data_channel, old_data_channel, :bytes_sent) * 8},
+        {"bytes_received", data_channel.bytes_received},
+        {"bytes_received_bits_sec",
+         per_sec_stat(data_channel, old_data_channel, :bytes_received) * 8}
+      ]
+      |> Enum.each(fn {id, data} ->
+        send_data_to_chart("data_channel-#{id}-#{data_channel.id}", [{nil, data, timestamp}])
       end)
     end
   end
@@ -601,6 +667,19 @@ defmodule ExWebRTCDashboard do
       {"markers_sent_sec", "Markers sent/s"},
       {"nack_count", "NACKs received"},
       {"pli_count", "PLIs received"}
+    ]
+  end
+
+  defp data_channel_stats do
+    [
+      {"messages_sent", "Messages sent"},
+      {"messages_sent_sec", "Messages sent/s"},
+      {"messages_received", "Messages received"},
+      {"messages_received_sec", "Messages received/s"},
+      {"bytes_sent", "Bytes sent"},
+      {"bytes_sent_bits_sec", "Bytes sent in bits/s"},
+      {"bytes_received", "Bytes received"},
+      {"bytes_received_bits_sec", "Bytes received in bits/s"}
     ]
   end
 end
