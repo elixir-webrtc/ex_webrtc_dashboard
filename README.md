@@ -12,14 +12,14 @@
 ## Installation
 
 1. Enable `LiveDashboard` by following these [instructions](https://github.com/phoenixframework/phoenix_live_dashboard?tab=readme-ov-file#installation).
-In most cases you can skip this step as `Phoenix` comes with `LiveDashboard` enabled by default.
+   In most cases you can skip this step as `Phoenix` comes with `LiveDashboard` enabled by default.
 
 2. Add `:ex_webrtc_dashboard` to your list of dependencies
 
 ```elixir
 def deps do
   [
-    {:ex_webrtc_dashboard, "~> 0.4.0"}
+    {:ex_webrtc_dashboard, "~> 0.5.0"}
   ]
 end
 ```
