@@ -19,7 +19,7 @@
 ```elixir
 def deps do
   [
-    {:ex_webrtc_dashboard, "~> 0.5.0"}
+    {:ex_webrtc_dashboard, "~> 0.6.0"}
   ]
 end
 ```
