@@ -1,7 +1,7 @@
 defmodule ExWebRTCDashboard.MixProject do
   use Mix.Project
 
-  @version "0.6.0"
+  @version "0.7.0"
   @source_url "https://github.com/elixir-webrtc/ex_webrtc_dashboard"
 
   def project do
@@ -42,7 +42,7 @@ defmodule ExWebRTCDashboard.MixProject do
   defp deps do
     [
       {:phoenix_live_dashboard, "~> 0.8.3"},
-      {:ex_webrtc, "~> 0.6.0"},
+      {:ex_webrtc, "~> 0.7.0"},
       {:ex_doc, "~> 0.31.0", only: :dev, runtime: false}
     ]
   end
