@@ -37,7 +37,7 @@ defmodule ExWebRTCDashboard do
         to = live_dashboard_path(socket, socket.assigns.page, nav: List.first(Map.keys(pc_pids)))
         {:ok, push_navigate(socket, to: to)}
 
-      nav != nil and pc_pids == %{} ->
+      pc_pids == %{} ->
         # don't do anything, render will inform that we are waiting for peer connections
         {:ok, socket}
 
@@ -156,34 +156,34 @@ defmodule ExWebRTCDashboard do
       <.row>
         <:col>
           <.card inner_title="PeerConnection state">
-            <%= @peer_connection.connection_state %>
+            {@peer_connection.connection_state}
           </.card>
         </:col>
         <:col>
           <.card inner_title="Signaling state">
-            <%= @peer_connection.signaling_state %>
+            {@peer_connection.signaling_state}
           </.card>
         </:col>
         <:col>
           <.card inner_title="Negotiation needed">
-            <%= @peer_connection.negotiation_needed %>
+            {@peer_connection.negotiation_needed}
           </.card>
         </:col>
       </.row>
       <.row>
         <:col>
           <.card inner_title="DTLS state">
-            <%= @transport.dtls_state %>
+            {@transport.dtls_state}
           </.card>
         </:col>
         <:col>
           <.card inner_title="ICE state">
-            <%= @transport.ice_state %>
+            {@transport.ice_state}
           </.card>
         </:col>
         <:col>
           <.card inner_title="ICE gathering state">
-            <%= @transport.ice_gathering_state %>
+            {@transport.ice_gathering_state}
           </.card>
         </:col>
       </.row>
@@ -194,16 +194,16 @@ defmodule ExWebRTCDashboard do
   defp cert(assigns) do
     ~H"""
     <div class="mt-4">
-      <h4><%= @title %></h4>
+      <h4>{@title}</h4>
       <.row_table title="Cretificate" object={@cert}>
         <:row :let={cert} label="Fingerprint">
-          <%= cert.fingerprint %>
+          {cert.fingerprint}
         </:row>
         <:row :let={cert} label="Algorithm">
-          <%= cert.fingerprint_algorithm %>
+          {cert.fingerprint_algorithm}
         </:row>
         <:row :let={cert} label="Base64 certificate">
-          <%= cert.base64_certificate %>
+          {cert.base64_certificate}
         </:row>
       </.row_table>
     </div>
@@ -213,16 +213,16 @@ defmodule ExWebRTCDashboard do
   defp desc(assigns) do
     ~H"""
     <div class="mt-4">
-      <h4><%= @title %></h4>
+      <h4>{@title}</h4>
       <.row_table title="Session Description" object={@desc}>
         <:row :let={desc} label="Type">
           <%= if desc do %>
-            <%= desc.type %>
+            {desc.type}
           <% end %>
         </:row>
         <:row :let={desc} label="SDP">
           <%= if desc do %>
-            <%= desc.sdp %>
+            {desc.sdp}
           <% end %>
         </:row>
       </.row_table>
@@ -233,7 +233,7 @@ defmodule ExWebRTCDashboard do
   defp candidates(assigns) do
     ~H"""
     <div class="mt-4">
-      <h4><%= @title %></h4>
+      <h4>{@title}</h4>
       <div class="card tabular-card mb-4 mt-4">
         <div class="card-body p-0">
           <div class="dash-table-wrapper">
@@ -253,18 +253,18 @@ defmodule ExWebRTCDashboard do
               <tbody>
                 <%= for cand <- Enum.sort(@candidates) do %>
                   <tr>
-                    <td><%= :inet.ntoa(cand.address) %></td>
-                    <td><%= cand.port %></td>
-                    <td><%= cand.protocol %></td>
-                    <td><%= cand.candidate_type %></td>
-                    <td><%= cand.priority %></td>
-                    <td><%= cand.foundation %></td>
+                    <td>{:inet.ntoa(cand.address)}</td>
+                    <td>{cand.port}</td>
+                    <td>{cand.protocol}</td>
+                    <td>{cand.candidate_type}</td>
+                    <td>{cand.priority}</td>
+                    <td>{cand.foundation}</td>
                     <td>
                       <%= if cand.related_address do %>
-                        <%= :inet.ntoa(cand.related_address) %>
+                        {:inet.ntoa(cand.related_address)}
                       <% end %>
                     </td>
-                    <td><%= cand.related_port %></td>
+                    <td>{cand.related_port}</td>
                   </tr>
                 <% end %>
               </tbody>
@@ -282,22 +282,22 @@ defmodule ExWebRTCDashboard do
       <h4>Transport</h4>
       <.row_table title="Transport" object={@transport}>
         <:row :let={transport} label="Bytes sent">
-          <%= transport.bytes_sent %>
+          {transport.bytes_sent}
         </:row>
         <:row :let={transport} label="Bytes received">
-          <%= transport.bytes_received %>
+          {transport.bytes_received}
         </:row>
         <:row :let={transport} label="Packets sent">
-          <%= transport.packets_sent %>
+          {transport.packets_sent}
         </:row>
         <:row :let={transport} label="Packets received">
-          <%= transport.packets_received %>
+          {transport.packets_received}
         </:row>
         <:row :let={transport} label="ICE role">
-          <%= transport.ice_role %>
+          {transport.ice_role}
         </:row>
         <:row :let={transport} label="ICE local ufrag">
-          <%= transport.ice_local_ufrag %>
+          {transport.ice_local_ufrag}
         </:row>
       </.row_table>
 
@@ -313,39 +313,39 @@ defmodule ExWebRTCDashboard do
   defp inbound_rtp(assigns) do
     ~H"""
     <div class="mt-4">
-      <h4>Inbound RTP <%= @inbound_rtp.id %></h4>
+      <h4>Inbound RTP {@inbound_rtp.id}</h4>
 
       <.row_table title={"Inbound RTP #{@inbound_rtp.id}"} object={@inbound_rtp}>
         <:row :let={inbound_rtp} label="Kind">
-          <%= inbound_rtp.kind %>
+          {inbound_rtp.kind}
         </:row>
         <:row :let={inbound_rtp} label="RID">
           <%= if inbound_rtp.rid != nil do %>
-            <%= inspect(inbound_rtp.rid) %>
+            {inspect(inbound_rtp.rid)}
           <% else %>
             -
           <% end %>
         </:row>
         <:row :let={inbound_rtp} label="MID">
-          <%= inspect(inbound_rtp.mid) %>
+          {inspect(inbound_rtp.mid)}
         </:row>
         <:row :let={inbound_rtp} label="SSRC">
-          <%= inbound_rtp.ssrc %>
+          {inbound_rtp.ssrc}
         </:row>
         <:row :let={inbound_rtp} label="Bytes received">
-          <%= inbound_rtp.bytes_received %>
+          {inbound_rtp.bytes_received}
         </:row>
         <:row :let={inbound_rtp} label="Packets received">
-          <%= inbound_rtp.packets_received %>
+          {inbound_rtp.packets_received}
         </:row>
         <:row :let={inbound_rtp} label="Markers received">
-          <%= inbound_rtp.markers_received %>
+          {inbound_rtp.markers_received}
         </:row>
         <:row :let={inbound_rtp} label="NACKs sent">
-          <%= inbound_rtp.nack_count %>
+          {inbound_rtp.nack_count}
         </:row>
         <:row :let={inbound_rtp} label="PLIs sent">
-          <%= inbound_rtp.pli_count %>
+          {inbound_rtp.pli_count}
         </:row>
       </.row_table>
 
@@ -366,38 +366,38 @@ defmodule ExWebRTCDashboard do
   defp outbound_rtp(assigns) do
     ~H"""
     <div class="mt-4">
-      <h4>Outbound RTP <%= @outbound_rtp.id %></h4>
+      <h4>Outbound RTP {@outbound_rtp.id}</h4>
 
       <.row_table title={"Outbound RTP #{@outbound_rtp.id}"} object={@outbound_rtp}>
         <:row :let={outbound_rtp} label="Kind">
-          <%= outbound_rtp.kind %>
+          {outbound_rtp.kind}
         </:row>
         <:row :let={outbound_rtp} label="MID">
-          <%= inspect(outbound_rtp.mid) %>
+          {inspect(outbound_rtp.mid)}
         </:row>
         <:row :let={outbound_rtp} label="SSRC">
-          <%= outbound_rtp.ssrc %>
+          {outbound_rtp.ssrc}
         </:row>
         <:row :let={outbound_rtp} label="Bytes sent">
-          <%= outbound_rtp.bytes_sent %>
+          {outbound_rtp.bytes_sent}
         </:row>
         <:row :let={outbound_rtp} label="Packets sent">
-          <%= outbound_rtp.packets_sent %>
+          {outbound_rtp.packets_sent}
         </:row>
         <:row :let={outbound_rtp} label="Retransmitted bytes sent">
-          <%= outbound_rtp.retransmitted_bytes_sent %>
+          {outbound_rtp.retransmitted_bytes_sent}
         </:row>
         <:row :let={outbound_rtp} label="Retransmitted packets sent">
-          <%= outbound_rtp.retransmitted_packets_sent %>
+          {outbound_rtp.retransmitted_packets_sent}
         </:row>
         <:row :let={outbound_rtp} label="Markers sent">
-          <%= outbound_rtp.markers_sent %>
+          {outbound_rtp.markers_sent}
         </:row>
         <:row :let={outbound_rtp} label="NACKs received">
-          <%= outbound_rtp.nack_count %>
+          {outbound_rtp.nack_count}
         </:row>
         <:row :let={outbound_rtp} label="PLIs received">
-          <%= outbound_rtp.pli_count %>
+          {outbound_rtp.pli_count}
         </:row>
       </.row_table>
 
@@ -418,29 +418,29 @@ defmodule ExWebRTCDashboard do
   defp data_channel(assigns) do
     ~H"""
     <div class="mt-4">
-      <h4>Data Channel <%= @data_channel.id %></h4>
+      <h4>Data Channel {@data_channel.id}</h4>
 
       <.row_table title={"Data Channel #{@data_channel.id}"} object={@data_channel}>
         <:row :let={data_channel} label="Label">
-          <%= data_channel.label %>
+          {data_channel.label}
         </:row>
         <:row :let={data_channel} label="Protocol">
-          <%= data_channel.protocol %>
+          {data_channel.protocol}
         </:row>
         <:row :let={data_channel} label="Data Channel Identifier">
-          <%= data_channel.data_channel_identifier %>
+          {data_channel.data_channel_identifier}
         </:row>
         <:row :let={data_channel} label="Messages sent">
-          <%= data_channel.messages_sent %>
+          {data_channel.messages_sent}
         </:row>
         <:row :let={data_channel} label="Bytes sent">
-          <%= data_channel.bytes_sent %>
+          {data_channel.bytes_sent}
         </:row>
         <:row :let={data_channel} label="Messages received">
-          <%= data_channel.messages_received %>
+          {data_channel.messages_received}
         </:row>
         <:row :let={data_channel} label="Bytes received">
-          <%= data_channel.bytes_received %>
+          {data_channel.bytes_received}
         </:row>
       </.row_table>
 
@@ -608,14 +608,14 @@ defmodule ExWebRTCDashboard do
             <table class="table table-hover dash-table">
               <thead>
                 <tr>
-                  <th colspan="2"><%= @title %></th>
+                  <th colspan="2">{@title}</th>
                 </tr>
               </thead>
               <tbody>
                 <%= for row <- @row do %>
                   <tr>
-                    <td><%= row.label %></td>
-                    <td class="text-break"><%= render_slot(row, @object) %></td>
+                    <td>{row.label}</td>
+                    <td class="text-break">{render_slot(row, @object)}</td>
                   </tr>
                 <% end %>
               </tbody>
